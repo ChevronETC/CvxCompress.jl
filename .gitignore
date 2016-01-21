@@ -1,0 +1,4 @@
+*.swp
+deps/downloads
+deps/src
+deps/usr
