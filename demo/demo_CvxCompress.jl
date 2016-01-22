@@ -7,7 +7,7 @@ nx = 130
 # 32 bit
 x = rand(Float32, nz, ny, nx)
 y = Array(UInt32, nz*ny*nx)
-c = CvxCompressor()
+c = CvxCompressor(nz=nz,ny=ny,nx=nx)
 compressed_length = compress!(y,c,x)
 
 xx = zeros(Float32, nz, ny, nx)
