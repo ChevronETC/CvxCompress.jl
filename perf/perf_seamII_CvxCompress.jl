@@ -105,31 +105,45 @@ for it in ts
 end
 close(io)
 
-using PyPlot
-figure(1);close();figure(1,figsize=(10,10));clf()
-subplot(221)
-plot(ts, prod(size(F.ginsu))*4 ./ clength_blosc      , label="blosc")
-plot(ts, prod(size(F.ginsu))*4 ./ clength_bloscquant , label="blosc-quant")
-plot(ts, prod(size(F.ginsu))   ./ clength_cvx        , label="cvx")
-title("Compression ratio");xlabel("time-step");legend()
+using Mayavi,PyPlot
+for (i,N) in enumerate([1,10])
+	rng=N:length(ts)
+	figure(i);close();figure(i,figsize=(10,10));clf()
+	subplot(221)
+	plot(ts[rng], (prod(size(F.ginsu))*4 ./ clength_blosc     )[rng] , label="blosc")
+	plot(ts[rng], (prod(size(F.ginsu))*4 ./ clength_bloscquant)[rng] , label="blosc-quant")
+	plot(ts[rng], (prod(size(F.ginsu))   ./ clength_cvx       )[rng] , label="cvx")
+	title("Compression ratio");xlabel("time-step");legend()
 
-subplot(222);
-plot(ts, t_blosc_compress,      label="blosc")
-plot(ts, t_bloscquant_compress, label="blosc-quant")
-plot(ts, t_cvx_compress,        label="cvx")
-title("Compess time");xlabel("time-step");legend()
+	subplot(222);
+	plot(ts[rng], t_blosc_compress[rng],      label="blosc")
+	plot(ts[rng], t_bloscquant_compress[rng], label="blosc-quant")
+	plot(ts[rng], t_cvx_compress[rng],        label="cvx")
+	title("Compess time");xlabel("time-step");legend()
 
-subplot(223)
-plot(ts, t_blosc_decompress,      label="blosc")
-plot(ts, t_bloscquant_decompress, label="blosc-quant")
-plot(ts, t_cvx_decompress,        label="cvx")
-title("Decompress time");xlabel("time-step");legend()
+	subplot(223)
+	plot(ts[rng], t_blosc_decompress[rng],      label="blosc")
+	plot(ts[rng], t_bloscquant_decompress[rng], label="blosc-quant")
+	plot(ts[rng], t_cvx_decompress[rng],        label="cvx")
+	title("Decompress time");xlabel("time-step");legend()
 
-subplot(224)
-plot(ts, snr_blosc,      label="blosc")
-plot(ts, snr_bloscquant, label="blosc-quant")
-plot(ts, snr_cvx,        label="cvx")
-title("SNR");xlabel("time-step");legend()
+	subplot(224)
+	plot(ts[rng], snr_blosc[rng],      label="blosc")
+	plot(ts[rng], snr_bloscquant[rng], label="blosc-quant")
+	plot(ts[rng], snr_cvx[rng],        label="cvx")
+	title("SNR");xlabel("time-step");legend()
 
-tight_layout()
-savefig("perf.png")
+	tight_layout()
+end
+figure(1);savefig("perf.png")
+figure(2);savefig("perf-zoom.png")
+
+io = open(F.srcfieldfile)
+for it in (50,100,200,300,400,500)
+	seek(io, it*prod(size(F.ginsu))*4)
+	x = read(io, Float32, size(F.ginsu)...)
+	sliceplot(x,clim=[-.0001,.0001], x = 50, y = 60, z = 80)
+end
+close(io)
+
+sliceplot(vp,x=50,y=60,z=80,clim=[1500,2500])
