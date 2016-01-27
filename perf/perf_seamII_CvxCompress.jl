@@ -45,7 +45,8 @@ t_bloscquant_decompress = Float64[]
 clength_bloscquant = Int64[]
 snr_bloscquant = Float64[]
 
-Blosc.set_num_threads(19)
+Blosc.set_num_threads(18)
+ENV["OMP_NUM_THREADS"] = 18
 
 function blosc_quant(nz,ny,nx,x,y)
 	xx = zeros(UInt16, nz, ny, nx)
@@ -67,52 +68,73 @@ function blosc_dequant(nz,ny,nx,x,y,mn,sc)
 end
 
 io = open(F.srcfieldfile)
-ts = 1:25:F.ntrec
+ts = 1:F.ntrec
 for it in ts 
 	write(STDOUT, "it=$(it).")
-	seek(io, it*prod(size(F.ginsu))*4)
+
+	# read uncrompressed field into x
+	seek(io, (it-1)*prod(size(F.ginsu))*4)
 	x = read(io, Float32, size(F.ginsu)...)
 	nz, ny, nx = size(F.ginsu)
 	
-	# CvxCompress -- crashes , and kills the Julia session in the process of crashing
+	#
+	# CvxCompress
+	#
+	cvx = CvxCompressor(nz=nz,ny=ny,nx=nx,bz=32,by=32,bx=32)
+	
+	# compression - compressed buffer is y
 	y = zeros(UInt32, nz*ny*nx)
-	cl = CvxCompress.compress!(y, CvxCompressor(nz=nz,ny=ny,nx=nx,bz=32,by=32,bx=32), x)
+	cl = CvxCompress.compress!(y, cvx, x)
 	push!(clength_cvx, cl)
 	push!(t_cvx_compress, @elapsed cl = CvxCompress.compress!(y, CvxCompressor(nz=nz,ny=ny,nx=nx,bz=32,by=32,bx=32), x))
+
+	# decompression - decompressed buffer is xx
 	xx = similar(x)
-	CvxCompress.decompress!(xx, CvxCompressor(nz=nz,ny=ny,nx=nx,bz=32,by=32,bx=32), y, cl)
+	CvxCompress.decompress!(xx, cvx, y, cl)
 	push!(t_cvx_decompress, @elapsed CvxCompress.decompress!(xx, CvxCompressor(nz=nz,ny=ny,nx=nx,bz=32,by=32,bx=32), y, cl))
 	push!(snr_cvx, 10*log10(vecnorm(x)^2 / vecnorm(x-xx)^2))
 
+	#
 	# Blosc (no quantization)
+	#
+
+	# compression - compressed buffer is y
 	y = zeros(UInt8, nz*ny*nx*4+512)
 	push!(clength_blosc, Blosc.compress!(y, x))
 	push!(t_blosc_compress, @elapsed c = Blosc.compress!(y, x))
-	xx=zeros(Float32,nz*ny*nx)
+
+	# decompression - decompressed buffer is xx
+	xx = Array(Float32,nz*ny*nx)
 	Blosc.decompress!(xx, y)
 	push!(t_blosc_decompress, @elapsed Blosc.decompress!(xx, y))
 	xx = reshape(xx,nz,ny,nx)
 	push!(snr_blosc, 10*log10(vecnorm(x)^2 / (vecnorm(x-xx)^2)))
 
-	# Blosc (quantize)
+	#
+	# Blosc (with quantization)
+	#
+
+	# compression - compressed buffer is y
 	c, mn, sc = blosc_quant(nz,ny,nx,x,y)
 	push!(clength_bloscquant, c)
 	push!(t_bloscquant_compress, @elapsed blosc_quant(nz,ny,nx,x,y))
+
+	# decompression - decompressed buffer is xx
 	xx=zeros(Float32,nz,ny,nx)
 	blosc_dequant(nz,ny,nx,xx,y,mn,sc)
-	push!(t_bloscquant_decompress, @elapsed blosc_dequant(nz,ny,nx,x,y,mn,sc))
+	push!(t_bloscquant_decompress, @elapsed blosc_dequant(nz,ny,nx,xx,y,mn,sc))
 	push!(snr_bloscquant, 10*log10(vecnorm(x)^2 / (vecnorm(x-xx)^2)))
 end
 close(io)
 
 using Mayavi,PyPlot
-for (i,N) in enumerate([1,10])
+for (i,N) in enumerate([1,400])
 	rng=N:length(ts)
 	figure(i);close();figure(i,figsize=(10,10));clf()
 	subplot(221)
 	plot(ts[rng], (prod(size(F.ginsu))*4 ./ clength_blosc     )[rng] , label="blosc")
 	plot(ts[rng], (prod(size(F.ginsu))*4 ./ clength_bloscquant)[rng] , label="blosc-quant")
-	plot(ts[rng], (prod(size(F.ginsu))   ./ clength_cvx       )[rng] , label="cvx")
+	plot(ts[rng], (prod(size(F.ginsu))*4 ./ clength_cvx       )[rng] , label="cvx")
 	title("Compression ratio");xlabel("time-step");legend()
 
 	subplot(222);

@@ -10,23 +10,20 @@ type CvxCompressor
 	bx::Int64
 	scale::Float32
 end
-function CvxCompressor(;bz=32,by=32,bx=32,nz=-1,ny=-1,nx=-1,scale=1e-4)
+function CvxCompressor(;bz=32,by=32,bx=32,nz=-1,ny=-1,nx=-1,scale=1e-2)
 	if nz < 0 || ny < 0 || nx < 0
 		throw(ArgumentError("must specify, nz,ny,nx\n"))
 	end
-	# find bz,by,bx that are less than or equal to nz,ny,nx and are a scalar multiple of 8 for simd
-	bz = blocksize(bz,nz)
-	by = blocksize(by,ny)
-	bx = blocksize(bx,nx)
-	CvxCompressor(bz, by, bx, scale)
-end
-
-function blocksize(b,n)
-	b = b > n ? n : b
-	while rem(b,8) != 0
-		b -= 1
+	if bz < 8 || bz > 256 || nextpow(2,bz) != bz
+		throw(ArgumentError("must have 8 <= bz <= 256, and bz must be a power of 2 got bz=$(bz)"))
 	end
-	b
+	if by < 8 || by > 256 || nextpow(2,by) != by
+		throw(ArgumentError("must have 8 <= by <= 256, and by must be a power of 2 got by=$(by)"))
+	end
+	if bx < 8 || bx > 256 || nextpow(2,bx) != bx
+		throw(ArgumentError("must have 8 <= bx <= 256, and bz must be a power of 2 got bx=$(bx)"))
+	end
+	CvxCompressor(bz, by, bx, scale)
 end
 
 function compress!(compressed_volume::Array{UInt32,1}, c::CvxCompressor, volume::Array{Float32,3})
@@ -35,7 +32,7 @@ function compress!(compressed_volume::Array{UInt32,1}, c::CvxCompressor, volume:
 	ccall((:cvx_compress, CvxCompress._jl_libcvxcompress),
 	      Float32,
 	      (Cfloat, Ptr{Cfloat}, Cint, Cint, Cint, Cint, Cint, Cint, Ptr{Cuint},        Ref{Clong}),
-	      c.scale, volume,      nz,   ny,   nx,   c.bz, c.by, c.bx,   compressed_volume, compressed_length)
+	      c.scale, volume,      nz,   ny,   nx,   c.bz, c.by, c.bx, compressed_volume, compressed_length)
 	compressed_length[]
 end
 compress!(compressed_volume::Array{UInt32,1}, c::CvxCompressor, volume::Array{Float64,3}) = compress!(compressed_volume, c, convert(Array{Float32,3}, volume))
