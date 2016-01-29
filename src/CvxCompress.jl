@@ -10,10 +10,7 @@ type CvxCompressor
 	bx::Int64
 	scale::Float32
 end
-function CvxCompressor(;bz=32,by=32,bx=32,nz=-1,ny=-1,nx=-1,scale=1e-2)
-	if nz < 0 || ny < 0 || nx < 0
-		throw(ArgumentError("must specify, nz,ny,nx\n"))
-	end
+function CvxCompressor(;bz::Integer=32,by::Integer=32,bx::Integer=32,scale::Real=1e-2)
 	if bz < 8 || bz > 256 || nextpow(2,bz) != bz
 		throw(ArgumentError("must have 8 <= bz <= 256, and bz must be a power of 2 got bz=$(bz)"))
 	end
@@ -23,8 +20,10 @@ function CvxCompressor(;bz=32,by=32,bx=32,nz=-1,ny=-1,nx=-1,scale=1e-2)
 	if bx < 8 || bx > 256 || nextpow(2,bx) != bx
 		throw(ArgumentError("must have 8 <= bx <= 256, and bz must be a power of 2 got bx=$(bx)"))
 	end
-	CvxCompressor(bz, by, bx, scale)
+	CvxCompressor(Int64(bz), Int64(by), Int64(bx), Float64(scale))
 end
+
+copy(c::CvxCompressor) = CvxCompressor(bz, by, bx, scale)
 
 function compress!(compressed_volume::Array{UInt32,1}, c::CvxCompressor, volume::Array{Float32,3})
 	nz, ny, nx = size(volume)

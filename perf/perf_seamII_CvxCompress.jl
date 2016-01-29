@@ -69,29 +69,29 @@ end
 
 io = open(F.srcfieldfile)
 ts = 1:F.ntrec
-for it in ts 
+for it in ts
 	write(STDOUT, "it=$(it).")
 
 	# read uncrompressed field into x
 	seek(io, (it-1)*prod(size(F.ginsu))*4)
 	x = read(io, Float32, size(F.ginsu)...)
 	nz, ny, nx = size(F.ginsu)
-	
+
 	#
 	# CvxCompress
 	#
-	cvx = CvxCompressor(nz=nz,ny=ny,nx=nx,bz=32,by=32,bx=32)
-	
+	cvx = CvxCompressor(bz=32,by=32,bx=32)
+
 	# compression - compressed buffer is y
 	y = zeros(UInt32, nz*ny*nx)
 	cl = CvxCompress.compress!(y, cvx, x)
 	push!(clength_cvx, cl)
-	push!(t_cvx_compress, @elapsed cl = CvxCompress.compress!(y, CvxCompressor(nz=nz,ny=ny,nx=nx,bz=32,by=32,bx=32), x))
+	push!(t_cvx_compress, @elapsed cl = CvxCompress.compress!(y, CvxCompressor(bz=32,by=32,bx=32), x))
 
 	# decompression - decompressed buffer is xx
 	xx = similar(x)
 	CvxCompress.decompress!(xx, cvx, y, cl)
-	push!(t_cvx_decompress, @elapsed CvxCompress.decompress!(xx, CvxCompressor(nz=nz,ny=ny,nx=nx,bz=32,by=32,bx=32), y, cl))
+	push!(t_cvx_decompress, @elapsed CvxCompress.decompress!(xx, CvxCompressor(bz=32,by=32,bx=32), y, cl))
 	push!(snr_cvx, 10*log10(vecnorm(x)^2 / vecnorm(x-xx)^2))
 
 	#
