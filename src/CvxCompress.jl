@@ -2,6 +2,8 @@ __precompile__()
 
 module CvxCompress
 
+import Base.copy
+
 const _jl_libcvxcompress = normpath(joinpath(Base.source_path(), "../../deps/usr/lib/libcvxcompress"))
 
 type CvxCompressor
