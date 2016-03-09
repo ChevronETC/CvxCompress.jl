@@ -1,4 +1,4 @@
-using CvxCompress, Blosc, ParallelAccelerator
+using CvxCompress, Blosc
 
 Blosc.set_num_threads(19)
 
