@@ -67,7 +67,7 @@ function blosc_dequant(nz,ny,nx,x,y,mn,sc)
 	end
 end
 
-io = open("$(F.srcfieldfile)-p")
+io = open(F.srcfieldfile)
 ts = 1:F.ntrec
 for it in ts
 	write(STDOUT, "it=$(it).")
@@ -160,7 +160,7 @@ end
 figure(1);savefig("perf.png")
 figure(2);savefig("perf-zoom.png")
 
-io = open("$(F.srcfieldfile)-p")
+io = open(F.srcfieldfile)
 for it in (50,100,200,300,400,500)
 	seek(io, it*prod(size(F.ginsu))*4)
 	x = read(io, Float32, size(F.ginsu)...)
