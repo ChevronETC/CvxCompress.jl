@@ -1,33 +1,29 @@
 using CvxCompress, Blosc, JavaSeis, Jot
 
 # read the earth model:
-io = jsopen("/data/data248/SIVPromaxHome/tqff/model_seamII_patch-10x20x20/model.js")
-nz,ny,nx = size(io)[1:3]
-dz,dy,dx = pincs(io)[1:3]
-vp = reshape(readtrcs(io, :, :, :, 1), nz, ny, nx)
-dn = reshape(readtrcs(io, :, :, :, 2), nz, ny, nx)
+io = jsopen("/data/data248/SIVPromaxHome/tqff/model_sigsbee2a/model.js")
+nz,nx = size(io)[1:2]
+dz,dx = pincs(io)[1:2]
+vp = readframetrcs(io,1)
+dn = readframetrcs(io,2)
 
 # receiver coordinates:
-rz = zeros(div(ny*nx,16))
-ry = zeros(div(ny*nx,16))
-rx = zeros(div(ny*nx,16))
-itrace = 1
-for iy = 1:8:ny, ix = 1:8:ny
-	rz[itrace] = 2*dz
-	ry[itrace] = (iy-1)*dy
-	rx[itrace] = (ix-1)*dx
-	itrace += 1
-end
+rz = [dz ; dz]
+rx = [0.0 ; (nx-1)*dx]
+
+# source coordinates
+sz = 2*dz
+sx = div(nx,2)*dx
 
 # modeling operator:
-F = JotOpNlProp3DAcoIsoDen_FDTD(
+F = JotOpNlProp2DAcoIsoDen_FDTD(
 	dn = dn, velmax = maximum(vp),
-	dz = dz, dy = dy, dx = dx,
-	rz = rz, ry = ry, rx = rx,
-	sz = 10.0, sy = dy*div(ny,2), sx = dx*div(nx,2),
-	ntrec = 512)
+	dz = dz, dx = dx,
+	rz = rz, rx = rx,
+	sz = sz, sx = sx,
+	ntrec = 2048)
 
-# model data (be patient... this might take a few minutes):
+# model data
 d = F(vp)
 
 t_cvx_compress = Float64[]
@@ -45,11 +41,11 @@ t_bloscquant_decompress = Float64[]
 clength_bloscquant = Int64[]
 snr_bloscquant = Float64[]
 
-Blosc.set_num_threads(18)
-ENV["OMP_NUM_THREADS"] = 18
+Blosc.set_num_threads(23)
+ENV["OMP_NUM_THREADS"] = 23
 
-function blosc_quant(nz,ny,nx,x,y)
-	xx = zeros(UInt16, nz, ny, nx)
+function blosc_quant(nz,nx,x,y)
+	xx = zeros(UInt16, nz, nx)
 	mn = minimum(x)
 	d = maximum(x) - mn + eps(Float32)
 	sc = d > eps(Float32) ? typemax(UInt16)/d : 1.0f0
@@ -59,8 +55,8 @@ function blosc_quant(nz,ny,nx,x,y)
 	clength_blosc_quant = Blosc.compress!(y, xx)
 	clength_blosc_quant, mn, sc
 end
-function blosc_dequant(nz,ny,nx,x,y,mn,sc)
-	xx = zeros(UInt16, nz*ny*nx)
+function blosc_dequant(nz,nx,x,y,mn,sc)
+	xx = zeros(UInt16, nz*nx)
 	Blosc.decompress!(xx,y)
 	for i = 1:length(x)
 		x[i] = xx[i]/sc + mn
@@ -75,23 +71,23 @@ for it in ts
 	# read uncrompressed field into x
 	seek(io, (it-1)*prod(size(F.ginsu))*4)
 	x = read(io, Float32, size(F.ginsu)...)
-	nz, ny, nx = size(F.ginsu)
+	nz, nx = size(F.ginsu)
 
 	#
 	# CvxCompress
 	#
-	cvx = CvxCompressor(bz=32,by=32,bx=32)
+	cvx = CvxCompressor2D(bz=32,bx=32)
 
 	# compression - compressed buffer is y
-	y = zeros(UInt32, nz*ny*nx)
+	y = zeros(UInt32, nz*nx)
 	cl = CvxCompress.compress!(y, cvx, x)
 	push!(clength_cvx, cl)
-	push!(t_cvx_compress, @elapsed cl = CvxCompress.compress!(y, CvxCompressor(bz=32,by=32,bx=32), x))
+	push!(t_cvx_compress, @elapsed cl = CvxCompress.compress!(y, cvx, x))
 
 	# decompression - decompressed buffer is xx
 	xx = similar(x)
 	CvxCompress.decompress!(xx, cvx, y, cl)
-	push!(t_cvx_decompress, @elapsed CvxCompress.decompress!(xx, CvxCompressor(bz=32,by=32,bx=32), y, cl))
+	push!(t_cvx_decompress, @elapsed CvxCompress.decompress!(xx, cvx, y, cl))
 	push!(snr_cvx, 10*log10(vecnorm(x)^2 / vecnorm(x-xx)^2))
 
 	#
@@ -99,15 +95,15 @@ for it in ts
 	#
 
 	# compression - compressed buffer is y
-	y = zeros(UInt8, nz*ny*nx*4+512)
+	y = zeros(UInt8, nz*nx*4+512)
 	push!(clength_blosc, Blosc.compress!(y, x))
 	push!(t_blosc_compress, @elapsed c = Blosc.compress!(y, x))
 
 	# decompression - decompressed buffer is xx
-	xx = Array(Float32,nz*ny*nx)
+	xx = Array(Float32,nz*nx)
 	Blosc.decompress!(xx, y)
 	push!(t_blosc_decompress, @elapsed Blosc.decompress!(xx, y))
-	xx = reshape(xx,nz,ny,nx)
+	xx = reshape(xx,nz,nx)
 	push!(snr_blosc, 10*log10(vecnorm(x)^2 / (vecnorm(x-xx)^2)))
 
 	#
@@ -115,20 +111,20 @@ for it in ts
 	#
 
 	# compression - compressed buffer is y
-	c, mn, sc = blosc_quant(nz,ny,nx,x,y)
+	c, mn, sc = blosc_quant(nz,nx,x,y)
 	push!(clength_bloscquant, c)
-	push!(t_bloscquant_compress, @elapsed blosc_quant(nz,ny,nx,x,y))
+	push!(t_bloscquant_compress, @elapsed blosc_quant(nz,nx,x,y))
 
 	# decompression - decompressed buffer is xx
-	xx=zeros(Float32,nz,ny,nx)
-	blosc_dequant(nz,ny,nx,xx,y,mn,sc)
-	push!(t_bloscquant_decompress, @elapsed blosc_dequant(nz,ny,nx,xx,y,mn,sc))
+	xx=zeros(Float32,nz,nx)
+	blosc_dequant(nz,nx,xx,y,mn,sc)
+	push!(t_bloscquant_decompress, @elapsed blosc_dequant(nz,nx,xx,y,mn,sc))
 	push!(snr_bloscquant, 10*log10(vecnorm(x)^2 / (vecnorm(x-xx)^2)))
 end
 close(io)
 
-using Mayavi,PyPlot
-for (i,N) in enumerate([1,400])
+using PyPlot
+for (i,N) in enumerate([1,800])
 	rng=N:length(ts)
 	figure(i);close();figure(i,figsize=(10,10));clf()
 	subplot(221)
@@ -157,15 +153,18 @@ for (i,N) in enumerate([1,400])
 
 	tight_layout()
 end
-figure(1);savefig("perf.png")
-figure(2);savefig("perf-zoom.png")
+figure(1);savefig("perf-2D.png")
+figure(2);savefig("perf-2D-zoom.png")
 
+figure(3);close();figure(3,figsize=(8,6));clf()
 io = open("$(F.srcfieldfile)-p")
-for it in (50,100,200,300,400,500)
+for (i,it) in enumerate([50,350,650,950,1250,1550])
 	seek(io, it*prod(size(F.ginsu))*4)
 	x = read(io, Float32, size(F.ginsu)...)
-	sliceplot(x,clim=[-.0001,.0001], x = 50, y = 60, z = 80)
+	subplot(3,2,i);imshow(x,clim=[-.01,.01],cmap="seismic_r");title("it=$(it)")
 end
+tight_layout()
+figure(3);savefig("fields-2D.png")
 close(io)
 
-sliceplot(vp,x=50,y=60,z=80,clim=[1500,2500])
+imshow(vp,clim=[1500,2500])
