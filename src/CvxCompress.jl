@@ -37,7 +37,7 @@ end
 # backwards compat:
 CvxCompressor(;bz::Integer=32,by::Integer=32,bx::Integer=32,scale::Real=1e-2) = CvxCompressor3D(bz=bz,by=by,bx=bx,scale=scale)
 
-copy(c::CvxCompressor) = CvxCompressor(copy(c.br), c.scale)
+copy{N}(c::CvxCompressor{N}) = CvxCompressor{N}(copy(c.br), c.scale)
 
 # 3D
 function compress!(compressed_volume::Array{UInt32,1}, c::CvxCompressor{3}, volume::Array{Float32,3})
