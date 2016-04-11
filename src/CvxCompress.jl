@@ -25,7 +25,7 @@ function CvxCompressor(;bz::Integer=32,by::Integer=32,bx::Integer=32,scale::Real
 	CvxCompressor(Int64(bz), Int64(by), Int64(bx), Float64(scale))
 end
 
-copy(c::CvxCompressor) = CvxCompressor(bz, by, bx, scale)
+copy(c::CvxCompressor) = CvxCompressor(c.bz, c.by, c.bx, c.scale)
 
 function compress!(compressed_volume::Array{UInt32,1}, c::CvxCompressor, volume::Array{Float32,3})
 	nz, ny, nx = size(volume)
