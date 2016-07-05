@@ -24,6 +24,8 @@ julia build.jl
 ```
 
 # Using CvxCompress.jl
+
+## 3D
 ```julia
 using CvxCompress
 
@@ -32,17 +34,42 @@ volume = rand(Float32,nz,ny,nx)
 compressed_volume = zeros(UInt32,nz*ny*nx)
 decompressed_volume = zeros(Float32,nz,ny,nx)
 
-c = CvxCompressor()
+c = CvxCompressor3D()
+nbytes = compress!(compressed_volume, c, volume)
+decompress!(decompressed_volume, c, compressed_volume)
+```
+
+## 2D
+```julia
+using CvxCompress
+
+nz,nx = 100,300
+volume = rand(Float32,nz,nx)
+compressed_volume = zeros(UInt32,nz*nx)
+decompressed_volume = zeros(Float32,nz,nx)
+
+c = CvxCompressor2D()
 nbytes = compress!(compressed_volume, c, volume)
 decompress!(decompressed_volume, c, compressed_volume)
 ```
 
 # Options
 The method `CvxCompressor` accepts a number of named optional arguments.  These arguments along with their default values are listed here:
+
+## 3D
 * `bz=32,by=32,bx=32` block size used for compression.  These must be powers of 2, and between 8 and 256.
 * `scale=1e-2` scale factor used to determine the thresholding of the wavelet coefficients
 
 For example:
 ```julia
-c = CvxCompressor(bz=16,by=32,bx=8,scale=1e-3)
+c = CvxCompressor3D(bz=16,by=32,bx=8,scale=1e-3)
+```
+
+## 2D
+* `bz=32,bx=32` block size used for compression.  These must be powers of 2, and between 8 and 256.
+* `scale=1e-2` scale factor used to determine the thresholding of the wavelet coefficients
+
+For example:
+```julia
+c = CvxCompressor2D(bz=16,bx=8,scale=1e-3)
 ```
