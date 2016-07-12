@@ -16,7 +16,7 @@ sz = 2*dz
 sx = div(nx,2)*dx
 
 # modeling operator:
-F = JotOpNlProp2DAcoIsoDen_FDTD(
+F = JotOpNlProp2DAcoIsoDen_DEO1_FDTD(
 	dn = dn, velmax = maximum(vp),
 	dz = dz, dx = dx,
 	rz = rz, rx = rx,

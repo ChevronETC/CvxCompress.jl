@@ -20,7 +20,7 @@ for iy = 1:8:ny, ix = 1:8:ny
 end
 
 # modeling operator:
-F = JotOpNlProp3DAcoIsoDen_FDTD(
+F = JotOpNlProp3DAcoIsoDen_DEO1_FDTD(
 	dn = dn, velmax = maximum(vp),
 	dz = dz, dy = dy, dx = dx,
 	rz = rz, ry = ry, rx = rx,
