@@ -158,10 +158,14 @@ figure(2);savefig("perf-2D-zoom.png")
 
 figure(3);close();figure(3,figsize=(8,6));clf()
 io = open("$(F.srcfieldfile)-p")
+clp=1.0
 for (i,it) in enumerate([50,350,650,950,1250,1550])
 	seek(io, it*prod(size(F.ginsu))*4)
 	x = read(io, Float32, size(F.ginsu)...)
-	subplot(3,2,i);imshow(x,clim=[-.01,.01],cmap="seismic_r");title("it=$(it)")
+	if i == 1
+		clp = maxabs(x)*.1
+	end
+	subplot(3,2,i);imshow(x,clim=clp*[-1,1],cmap="seismic_r");title("it=$(it)")
 end
 tight_layout()
 figure(3);savefig("fields-2D.png")
