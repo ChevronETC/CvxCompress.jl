@@ -7,35 +7,35 @@ import Base.copy
 const _jl_libcvxcompress = normpath(joinpath(Base.source_path(), "../../deps/usr/lib/libcvxcompress"))
 
 type CvxCompressor{N}
-	br::Array{Int64,1} # [bz,by,bx] for 3D or [by,bx] for 2D
+	br::Array{Int64,1} # [bz,by,bx] for 3D or [bz,bx] for 2D
 	scale::Float32
 end
 
-function CvxCompressor3D(;bz::Integer=32,by::Integer=32,bx::Integer=32,scale::Real=1e-2)
-	if bz < 8 || bz > 256 || nextpow(2,bz) != bz
-		throw(ArgumentError("must have 8 <= bz <= 256, and bz must be a power of 2 got bz=$(bz)"))
+function CvxCompressor3D(;b1::Integer=32,b2::Integer=32,b3::Integer=32,scale::Real=1e-2)
+	if b1 < 8 || b2 > 256 || nextpow(2,b3) != b3
+		throw(ArgumentError("must have 8 <= b3 <= 256, and b3 must be a power of 2 got b3=$(b3)"))
 	end
-	if by < 8 || by > 256 || nextpow(2,by) != by
-		throw(ArgumentError("must have 8 <= by <= 256, and by must be a power of 2 got by=$(by)"))
+	if b2 < 8 || b2 > 256 || nextpow(2,b2) != b2
+		throw(ArgumentError("must have 8 <= b2 <= 256, and by must be a power of 2 got b2=$(b2)"))
 	end
-	if bx < 8 || bx > 256 || nextpow(2,bx) != bx
-		throw(ArgumentError("must have 8 <= bx <= 256, and bz must be a power of 2 got bx=$(bx)"))
+	if b3 < 8 || b3 > 256 || nextpow(2,b3) != b3
+		throw(ArgumentError("must have 8 <= b3 <= 256, and b3 must be a power of 2 got b3=$(b3)"))
 	end
-	CvxCompressor{3}([Int64(bz) ; Int64(by) ; Int64(bx)], Float32(scale))
+	CvxCompressor{3}([Int64(b1) ; Int64(b2) ; Int64(b3)], Float32(scale))
 end
 
-function CvxCompressor2D(;bz::Integer=32,bx::Integer=32,scale::Real=1e-2)
-	if bz < 8 || bz > 256 || nextpow(2,bz) != bz
-		throw(ArgumentError("must have 8 <= bz <= 256, and bz must be a power of 2 got bz=$(bz)"))
+function CvxCompressor2D(;b1::Integer=32,b2::Integer=32,scale::Real=1e-2)
+	if b1 < 8 || b1 > 256 || nextpow(2,b1) != b1
+		throw(ArgumentError("must have 8 <= b1 <= 256, and b1 must be a power of 2 got b1=$(b1)"))
 	end
-	if bx < 8 || bx > 256 || nextpow(2,bx) != bx
-		throw(ArgumentError("must have 8 <= bx <= 256, and bz must be a power of 2 got bx=$(bx)"))
+	if b2 < 8 || b2 > 256 || nextpow(2,b2) != b2
+		throw(ArgumentError("must have 8 <= b2 <= 256, and b2 must be a power of 2 got b2=$(b2)"))
 	end
-	CvxCompressor{2}([Int64(bz) ; Int64(bx)], Float32(scale))
+	CvxCompressor{2}([Int64(b1) ; Int64(b2)], Float32(scale))
 end
 
 # backwards compat:
-CvxCompressor(;bz::Integer=32,by::Integer=32,bx::Integer=32,scale::Real=1e-2) = CvxCompressor3D(bz=bz,by=by,bx=bx,scale=scale)
+CvxCompressor(;b1::Integer=32,b2::Integer=32,b3::Integer=32,scale::Real=1e-2) = CvxCompressor3D(b1=b1,b2=b2,b3=b3,scale=scale)
 
 copy{N}(c::CvxCompressor{N}) = CvxCompressor{N}(copy(c.br), c.scale)
 

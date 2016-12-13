@@ -80,18 +80,18 @@ for it in ts
 	#
 	# CvxCompress
 	#
-	cvx = CvxCompressor(bz=32,by=32,bx=32)
+	cvx = CvxCompressor(b1=32,b2=32,b3=32)
 
 	# compression - compressed buffer is y
 	y = zeros(UInt32, nz*ny*nx)
 	cl = CvxCompress.compress!(y, cvx, x)
 	push!(clength_cvx, cl)
-	push!(t_cvx_compress, @elapsed cl = CvxCompress.compress!(y, CvxCompressor(bz=32,by=32,bx=32), x))
+	push!(t_cvx_compress, @elapsed cl = CvxCompress.compress!(y, CvxCompressor(b1=32,b2=32,b3=32), x))
 
 	# decompression - decompressed buffer is xx
 	xx = similar(x)
 	CvxCompress.decompress!(xx, cvx, y, cl)
-	push!(t_cvx_decompress, @elapsed CvxCompress.decompress!(xx, CvxCompressor(bz=32,by=32,bx=32), y, cl))
+	push!(t_cvx_decompress, @elapsed CvxCompress.decompress!(xx, CvxCompressor(b1=32,b2=32,b3=32), y, cl))
 	push!(snr_cvx, 10*log10(vecnorm(x)^2 / vecnorm(x-xx)^2))
 
 	#
