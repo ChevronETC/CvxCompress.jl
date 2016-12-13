@@ -7,7 +7,7 @@ import Base.copy
 const _jl_libcvxcompress = normpath(joinpath(Base.source_path(), "../../deps/usr/lib/libcvxcompress"))
 
 type CvxCompressor{N}
-	br::Array{Int64,1} # [bz,by,bx] for 3D or [by,bx] for 2D
+	br::Array{Int64,1} # [bz,by,bx] for 3D or [bz,bx] for 2D
 	scale::Float32
 end
 
