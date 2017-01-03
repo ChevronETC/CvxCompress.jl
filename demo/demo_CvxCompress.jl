@@ -67,5 +67,5 @@ decompress!(xx,c,y,compressed_length)
 figure(2);clf();subplot(131);imshow(x,clim=[-1,1]);subplot(132);imshow(xx,clim=[-1,1]);subplot(133);imshow(x-xx,clim=[-1,1])
 
 if isinteractive() == false
-    sleep(9999999)
+	sleep(9999999)
 end

@@ -4,12 +4,12 @@ BUILD_HOME = pwd()
 # clean-up after old builds
 #
 for dir in ("downloads", "src", "usr", "usr/lib")
-    try
-        run(`rm -rf $(BUILD_HOME)/$(dir)`)
-        run(`mkdir -p $(BUILD_HOME)/$(dir)`)
-    catch
-        warn("Unable to fully clean-up from previous build, likely due to nfs")
-    end
+	try
+		run(`rm -rf $(BUILD_HOME)/$(dir)`)
+		run(`mkdir -p $(BUILD_HOME)/$(dir)`)
+	catch
+		warn("Unable to fully clean-up from previous build, likely due to nfs")
+	end
 end
 
 #
