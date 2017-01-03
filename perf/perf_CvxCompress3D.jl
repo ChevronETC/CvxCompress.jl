@@ -27,23 +27,23 @@ snr_blosc = 10*log10(vecnorm(x)^2 / (vecnorm(x-xx)^2))
 
 # Blosc (quantization)
 function blosc_quant(nz,ny,nx,x,y)
-	xx = zeros(UInt16, nz, ny, nx)
-	mn = minimum(x)
-	d = maximum(x) - mn + eps(Float32)
-	sc = d > eps(Float32) ? typemax(UInt16)/d : 1.0f0
-	for i = 1:length(x)
-		@inbounds xx[i] = unsafe_trunc(UInt16, (x[i]-mn)*sc)
-	end
-	clength_blosc_quant = Blosc.compress!(y, xx)
-	clength_blosc_quant, mn, sc
+    xx = zeros(UInt16, nz, ny, nx)
+    mn = minimum(x)
+    d = maximum(x) - mn + eps(Float32)
+    sc = d > eps(Float32) ? typemax(UInt16)/d : 1.0f0
+    for i = 1:length(x)
+        @inbounds xx[i] = unsafe_trunc(UInt16, (x[i]-mn)*sc)
+    end
+    clength_blosc_quant = Blosc.compress!(y, xx)
+    clength_blosc_quant, mn, sc
 end
 
 function blosc_dequant(nz,ny,nx,x,y,mn,sc)
-	xx = zeros(UInt16, nz*ny*nx)
-	Blosc.decompress!(xx,y)
-	for i = 1:length(x)
-		x[i] = xx[i]/sc + mn
-	end
+    xx = zeros(UInt16, nz*ny*nx)
+    Blosc.decompress!(xx,y)
+    for i = 1:length(x)
+        x[i] = xx[i]/sc + mn
+    end
 end
 
 clength_blosc_quant, mn, sc = blosc_quant(nz,ny,nx,x,y)
@@ -54,23 +54,23 @@ snr_bloscquant = 10*log10(vecnorm(x)^2 / (vecnorm(x-xx)^2))
 
 readme = open("README.md", "w")
 for io in (STDOUT, readme)
-	write(io, "# times (compress, de-compress):\n")
-	write(io, "* cvx:         $(t_cvx_compress),$(t_cvx_decompress) seconds\n")
-	write(io, "* blosc:       $(t_blosc_compress),$(t_blosc_decompress) seconds\n")
-	write(io, "* blosc-quant: $(t_bloscquant_compress),$(t_bloscquant_decompress) seconds\n")
+    write(io, "# times (compress, de-compress):\n")
+    write(io, "* cvx:         $(t_cvx_compress),$(t_cvx_decompress) seconds\n")
+    write(io, "* blosc:       $(t_blosc_compress),$(t_blosc_decompress) seconds\n")
+    write(io, "* blosc-quant: $(t_bloscquant_compress),$(t_bloscquant_decompress) seconds\n")
 
-	write(io, "\n")
+    write(io, "\n")
 
-	write(io, "# compression:\n")
-	write(io, "* cvx:         $((clength_cvx*4)/(nz*ny*nx*4))\n")
-	write(io, "* blosc:       $((clength_blosc)/(nz*ny*nx*4))\n")
-	write(io, "* blosc-quant: $((clength_blosc_quant)/(nz*ny*nx*4))\n")
+    write(io, "# compression:\n")
+    write(io, "* cvx:         $((clength_cvx*4)/(nz*ny*nx*4))\n")
+    write(io, "* blosc:       $((clength_blosc)/(nz*ny*nx*4))\n")
+    write(io, "* blosc-quant: $((clength_blosc_quant)/(nz*ny*nx*4))\n")
 
-	write(io, "\n")
+    write(io, "\n")
 
-	write(io, "# signal-to-noise:\n")
-	write(io, "* cvx:         $(snr_cvx)\n")
-	write(io, "* blosc:       $(snr_blosc)\n")
-	write(io, "* blosc-quant: $(snr_bloscquant)\n")
+    write(io, "# signal-to-noise:\n")
+    write(io, "* cvx:         $(snr_cvx)\n")
+    write(io, "* blosc:       $(snr_blosc)\n")
+    write(io, "* blosc-quant: $(snr_bloscquant)\n")
 end
 close(readme)
