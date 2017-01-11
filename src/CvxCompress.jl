@@ -54,7 +54,7 @@ compress!(compressed_volume::Array{UInt32,1}, c::CvxCompressor{3}, volume::Array
 function decompress!(volume::Array{Float32,3}, c::CvxCompressor{3}, compressed_volume::Array{UInt32,1}, compressed_length::Integer)
     nz, ny, nx = size(volume)
     ccall((:cvx_decompress_inplace, CvxCompress._jl_libcvxcompress),
-          Ptr{Void},
+          Void,
           (Ptr{Cfloat}, Cint, Cint, Cint, Ptr{Cuint},        Clong),
           volume,       nz,   ny,   nx,   compressed_volume, compressed_length)
 end
@@ -67,19 +67,18 @@ end
 # 2D
 function compress!(compressed_volume::Array{UInt32,1}, c::CvxCompressor{2}, volume::Array{Float32,2})
     nz, nx = size(volume)
-    compressed_length = Ref{Clong}(1)
     ccall((:cvx_compress, CvxCompress._jl_libcvxcompress),
           Float32,
           (Cfloat, Ptr{Cfloat}, Cint, Cint, Cint, Cint,    Cint,    Cint,    Ptr{Cuint},        Ref{Clong}),
-          c.scale, volume,      nz,   nx,   1,    c.br[1], c.br[2], 1,       compressed_volume, compressed_length)
-    compressed_length[]
+          c.scale, volume,      nz,   nx,   1,    c.br[1], c.br[2], 1,       compressed_volume, c.compressed_length)
+    c.compressed_length[]
 end
 compress!(compressed_volume::Array{UInt32,1}, c::CvxCompressor{2}, volume::Array{Float64,2}) = compress!(compressed_volume, c, convert(Array{Float32,2}, volume))
 
 function decompress!(volume::Array{Float32,2}, c::CvxCompressor{2}, compressed_volume::Array{UInt32,1}, compressed_length::Integer)
     nz, nx = size(volume)
     ccall((:cvx_decompress_inplace, CvxCompress._jl_libcvxcompress),
-          Ptr{Void},
+          Void,
           (Ptr{Cfloat}, Cint, Cint, Cint, Ptr{Cuint},        Clong),
           volume,       nz,   nx,   1,    compressed_volume, compressed_length)
 end
