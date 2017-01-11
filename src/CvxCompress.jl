@@ -9,6 +9,7 @@ const _jl_libcvxcompress = normpath(joinpath(Base.source_path(), "../../deps/usr
 type CvxCompressor{N}
     br::Array{Int64,1} # [bz,by,bx] for 3D or [bz,bx] for 2D
     scale::Float32
+    compressed_length::Base.RefValue{Clong}
 end
 
 function CvxCompressor3D(;b1::Integer=32,b2::Integer=32,b3::Integer=32,scale::Real=1e-2)
@@ -21,7 +22,7 @@ function CvxCompressor3D(;b1::Integer=32,b2::Integer=32,b3::Integer=32,scale::Re
     if b3 < 8 || b3 > 256 || nextpow(2,b3) != b3
         throw(ArgumentError("must have 8 <= b3 <= 256, and b3 must be a power of 2 got b3=$(b3)"))
     end
-    CvxCompressor{3}([Int64(b1) ; Int64(b2) ; Int64(b3)], Float32(scale))
+    CvxCompressor{3}([Int64(b1) ; Int64(b2) ; Int64(b3)], Float32(scale), Ref{Clong}(0))
 end
 
 function CvxCompressor2D(;b1::Integer=32,b2::Integer=32,scale::Real=1e-2)
@@ -31,23 +32,22 @@ function CvxCompressor2D(;b1::Integer=32,b2::Integer=32,scale::Real=1e-2)
     if b2 < 8 || b2 > 256 || nextpow(2,b2) != b2
         throw(ArgumentError("must have 8 <= b2 <= 256, and b2 must be a power of 2 got b2=$(b2)"))
     end
-    CvxCompressor{2}([Int64(b1) ; Int64(b2)], Float32(scale))
+    CvxCompressor{2}([Int64(b1) ; Int64(b2)], Float32(scale), Ref{Clong}(0))
 end
 
 # backwards compat:
 CvxCompressor(;b1::Integer=32,b2::Integer=32,b3::Integer=32,scale::Real=1e-2) = CvxCompressor3D(b1=b1,b2=b2,b3=b3,scale=scale)
 
-copy{N}(c::CvxCompressor{N}) = CvxCompressor{N}(copy(c.br), c.scale)
+copy{N}(c::CvxCompressor{N}) = CvxCompressor{N}(copy(c.br), c.scale, Ref{Clong}(0))
 
 # 3D
 function compress!(compressed_volume::Array{UInt32,1}, c::CvxCompressor{3}, volume::Array{Float32,3})
     nz, ny, nx = size(volume)
-    compressed_length = Ref{Clong}(1)
     ccall((:cvx_compress, CvxCompress._jl_libcvxcompress),
           Float32,
           (Cfloat, Ptr{Cfloat}, Cint, Cint, Cint, Cint,    Cint,    Cint,    Ptr{Cuint},        Ref{Clong}),
-          c.scale, volume,      nz,   ny,   nx,   c.br[1], c.br[2], c.br[3], compressed_volume, compressed_length)
-    compressed_length[]
+          c.scale, volume,      nz,   ny,   nx,   c.br[1], c.br[2], c.br[3], compressed_volume, c.compressed_length)
+    c.compressed_length[]
 end
 compress!(compressed_volume::Array{UInt32,1}, c::CvxCompressor{3}, volume::Array{Float64,3}) = compress!(compressed_volume, c, convert(Array{Float32,3}, volume))
 
