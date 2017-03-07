@@ -6,7 +6,7 @@ nx = 130
 
 # 3D - 32 bit
 x = rand(Float32, nz, ny, nx)
-y = Array(UInt32, nz*ny*nx)
+y = Array{UInt32}(nz*ny*nx)
 c = CvxCompressor3D()
 compressed_length = compress!(y,c,x)
 
@@ -23,7 +23,7 @@ sliceplot(x-xx,clim=[-1,1])
 
 # 3D - 64 bit
 x = rand(Float64, nz, ny, nx)
-y = Array(UInt32, nz*ny*nx)
+y = Array{UInt32}(nz*ny*nx)
 c = CvxCompressor3D()
 compressed_length = compress!(y,c,x)
 
@@ -39,7 +39,7 @@ sliceplot(x-xx,clim=[-1,1])
 
 # 2D - 32 bit
 x = rand(Float32, nz, nx)
-y = Array(UInt32, nz*nx)
+y = Array{UInt32}(nz*nx)
 c = CvxCompressor2D()
 compressed_length = compress!(y,c,x)
 
@@ -54,7 +54,7 @@ figure(1);clf();subplot(131);imshow(x,clim=[-1,1]);subplot(132);imshow(xx,clim=[
 
 # 2D - 64 bit
 x = rand(Float64, nz, nx)
-y = Array(UInt32, nz*nx)
+y = Array{UInt32}(nz*nx)
 c = CvxCompressor2D()
 compressed_length = compress!(y,c,x)
 
