@@ -59,7 +59,7 @@ function decompress!(volume::Array{Float32,3}, c::CvxCompressor{3}, compressed_v
           volume,       nz,   ny,   nx,   compressed_volume, compressed_length)
 end
 function decompress!(volume::Array{Float64,3}, c::CvxCompressor{3}, compressed_volume::Array{UInt32,1}, compressed_length::Integer)
-    v = Array(Float32,size(volume))
+    v = Array{Float32}(size(volume))
     decompress!(v, c, compressed_volume, compressed_length)
     volume[:] = v[:]
 end
@@ -83,7 +83,7 @@ function decompress!(volume::Array{Float32,2}, c::CvxCompressor{2}, compressed_v
           volume,       nz,   nx,   1,    compressed_volume, compressed_length)
 end
 function decompress!(volume::Array{Float64,2}, c::CvxCompressor{2}, compressed_volume::Array{UInt32,1}, compressed_length::Integer)
-    v = Array(Float32, size(volume))
+    v = Array{Float32}(size(volume))
     decompress!(v, c, compressed_volume, compressed_length)
     volume[:] = v[:]
 end
