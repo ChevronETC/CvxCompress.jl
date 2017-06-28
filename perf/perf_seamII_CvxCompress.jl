@@ -1,4 +1,4 @@
-using CvxCompress, Blosc, JavaSeis, Jot
+using CvxCompress, Blosc, TeaSeis, Jot
 
 # read the earth model:
 io = jsopen("/data/data248/SIVPromaxHome/tqff/model_seamII_patch-10x20x20/model.js")
