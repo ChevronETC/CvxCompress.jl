@@ -1,4 +1,4 @@
-using CvxCompress, Blosc, JavaSeis, Jot
+using CvxCompress, Blosc, TeaSeis, Jot
 
 # read the earth model:
 io = jsopen("/data/data248/SIVPromaxHome/tqff/model_seamII_patch-10x20x20/model.js")
@@ -73,9 +73,9 @@ for it in ts
     write(STDOUT, "it=$(it).")
 
     # read uncrompressed field into x
-    seek(io, (it-1)*prod(size(F.ginsu))*4)
-    x = read(io, Float32, size(F.ginsu)...)
-    nz, ny, nx = size(F.ginsu)
+    seek(io, (it-1)*prod(size(F.ginsu,interior=true))*4)
+    x = read(io, Float32, size(F.ginsu,interior=true)...)
+    nz, ny, nx = size(F.ginsu,interior=true)
 
     #
     # CvxCompress
@@ -104,7 +104,7 @@ for it in ts
     push!(t_blosc_compress, @elapsed c = Blosc.compress!(y, x))
 
     # decompression - decompressed buffer is xx
-    xx = Array(Float32,nz*ny*nx)
+    xx = Array{Float32}(nz*ny*nx)
     Blosc.decompress!(xx, y)
     push!(t_blosc_decompress, @elapsed Blosc.decompress!(xx, y))
     xx = reshape(xx,nz,ny,nx)
@@ -132,9 +132,9 @@ for (i,N) in enumerate([1,400])
     rng=N:length(ts)
     figure(i);close();figure(i,figsize=(10,10));clf()
     subplot(221)
-    plot(ts[rng], (prod(size(F.ginsu))*4 ./ clength_blosc     )[rng] , label="blosc")
-    plot(ts[rng], (prod(size(F.ginsu))*4 ./ clength_bloscquant)[rng] , label="blosc-quant")
-    plot(ts[rng], (prod(size(F.ginsu))*4 ./ clength_cvx       )[rng] , label="cvx")
+    plot(ts[rng], (prod(size(F.ginsu,interior=true))*4 ./ clength_blosc     )[rng] , label="blosc")
+    plot(ts[rng], (prod(size(F.ginsu,interior=true))*4 ./ clength_bloscquant)[rng] , label="blosc-quant")
+    plot(ts[rng], (prod(size(F.ginsu,interior=true))*4 ./ clength_cvx       )[rng] , label="cvx")
     title("Compression ratio");xlabel("time-step");legend()
 
     subplot(222);
@@ -161,11 +161,13 @@ figure(1);savefig("perf.png")
 figure(2);savefig("perf-zoom.png")
 
 io = open("$(F.srcfieldfile)-p")
-for it in (50,100,200,300,400,500)
-    seek(io, it*prod(size(F.ginsu))*4)
-    x = read(io, Float32, size(F.ginsu)...)
-    sliceplot(x,clim=[-.0001,.0001], x = 50, y = 60, z = 80)
+for (i,it) in enumerate([50,100,200,300,400,500])
+    seek(io, it*prod(size(F.ginsu,interior=true))*4)
+    x = read(io, Float32, size(F.ginsu,interior=true)...)
+    @show extrema(x)
+    Mayavi.figure(i);Mayavi.clf();sliceplot(x,clim=[-1e6,1e6], x3 = 50, x2 = 60, x1 = 80)
 end
 close(io)
 
-sliceplot(vp,x=50,y=60,z=80,clim=[1500,2500])
+Mayavi.figure(7);Mayavi.clf();sliceplot(vp,x3=50,x2=60,x1=80,clim=[1500,2500])
+
