@@ -33,9 +33,9 @@ decompress!(xx,c,y,compressed_length)
 @show vecnorm(x-xx)
 @show compressed_length / length(x)
 
-sliceplot(x,clim=[-1,1])
-sliceplot(xx,clim=[-1,1])
-sliceplot(x-xx,clim=[-1,1])
+Mayavi.figure(1);Mayavi.clf();sliceplot(x,clim=[-1,1])
+Mayavi.figure(2);Mayavi.clf();sliceplot(xx,clim=[-1,1])
+Mayavi.figure(3);Mayavi.clf();sliceplot(x-xx,clim=[-1,1])
 
 # 2D - 32 bit
 x = rand(Float32, nz, nx)

@@ -1,4 +1,4 @@
-using CvxCompress, Blosc, JavaSeis, Jot
+using CvxCompress, Blosc, TeaSeis, Jot
 
 # read the earth model:
 io = jsopen("/data/data248/SIVPromaxHome/tqff/model_sigsbee2a/model.js")
@@ -69,14 +69,14 @@ for it in ts
     write(STDOUT, "it=$(it).")
 
     # read uncrompressed field into x
-    seek(io, (it-1)*prod(size(F.ginsu))*4)
-    x = read(io, Float32, size(F.ginsu)...)
-    nz, nx = size(F.ginsu)
+    seek(io, (it-1)*prod(size(F.ginsu,interior=true))*4)
+    x = read(io, Float32, size(F.ginsu,interior=true)...)
+    nz, nx = size(F.ginsu,interior=true)
 
     #
     # CvxCompress
     #
-    cvx = CvxCompressor2D(bz=32,bx=32)
+    cvx = CvxCompressor2D(b1=32,b2=32)
 
     # compression - compressed buffer is y
     y = zeros(UInt32, nz*nx)
@@ -100,7 +100,7 @@ for it in ts
     push!(t_blosc_compress, @elapsed c = Blosc.compress!(y, x))
 
     # decompression - decompressed buffer is xx
-    xx = Array(Float32,nz*nx)
+    xx = Array{Float32}(nz*nx)
     Blosc.decompress!(xx, y)
     push!(t_blosc_decompress, @elapsed Blosc.decompress!(xx, y))
     xx = reshape(xx,nz,nx)
@@ -128,9 +128,9 @@ for (i,N) in enumerate([1,800])
     rng=N:length(ts)
     figure(i);close();figure(i,figsize=(10,10));clf()
     subplot(221)
-    plot(ts[rng], (prod(size(F.ginsu))*4 ./ clength_blosc     )[rng] , label="blosc")
-    plot(ts[rng], (prod(size(F.ginsu))*4 ./ clength_bloscquant)[rng] , label="blosc-quant")
-    plot(ts[rng], (prod(size(F.ginsu))*4 ./ clength_cvx       )[rng] , label="cvx")
+    plot(ts[rng], (prod(size(F.ginsu,interior=true))*4 ./ clength_blosc     )[rng] , label="blosc")
+    plot(ts[rng], (prod(size(F.ginsu,interior=true))*4 ./ clength_bloscquant)[rng] , label="blosc-quant")
+    plot(ts[rng], (prod(size(F.ginsu,interior=true))*4 ./ clength_cvx       )[rng] , label="cvx")
     title("Compression ratio");xlabel("time-step");legend()
 
     subplot(222);
@@ -160,8 +160,8 @@ figure(3);close();figure(3,figsize=(8,6));clf()
 io = open("$(F.srcfieldfile)-p")
 clp=1.0
 for (i,it) in enumerate([50,350,650,950,1250,1550])
-    seek(io, it*prod(size(F.ginsu))*4)
-    x = read(io, Float32, size(F.ginsu)...)
+    seek(io, it*prod(size(F.ginsu,interior=true))*4)
+    x = read(io, Float32, size(F.ginsu,interior=true)...)
     if i == 1
         clp = maxabs(x)*.1
     end
@@ -171,4 +171,4 @@ tight_layout()
 figure(3);savefig("fields-2D.png")
 close(io)
 
-imshow(vp,clim=[1500,2500])
+figure(4);imshow(vp,clim=[1500,2500])
