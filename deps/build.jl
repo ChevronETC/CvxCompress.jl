@@ -1,4 +1,5 @@
 BUILD_HOME = pwd()
+REPO_PATH = haskey(ENV, "CODE_REPO_PATH") ? "$(ENV["CODE_REPO_PATH"])/CvxCompress" : "http://136.171.178.114/EarthSciences/CvxCompress"
 
 #
 # clean-up after old builds
@@ -15,7 +16,10 @@ end
 #
 # fetch dependencies
 #
-run(`svn co svn+ssh://ss-svn.xhl.chevrontexaco.net/devl/geophys/src/projects/fdmod2/trunk/CvxCompress $(BUILD_HOME)/downloads/CvxCompress`)
+run(`git clone $(REPO_PATH) $(BUILD_HOME)/downloads/CvxCompress`)
+cd("$(BUILD_HOME)/downloads/CvxCompress")
+run(`git checkout tqff/d20861c`)
+cd(BUILD_HOME)
 
 #
 # build
