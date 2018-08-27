@@ -15,7 +15,7 @@ t_cvx_compress = @elapsed clength_cvx = CvxCompress.compress!(y, CvxCompressor2D
 xx = similar(x)
 CvxCompress.decompress!(xx, CvxCompressor2D(b1=bz,b2=bx,scale=scl), y, clength_cvx)
 t_cvx_decompress = @elapsed CvxCompress.decompress!(xx, CvxCompressor2D(b1=bz,b2=bx,scale=scl), y, clength_cvx)
-snr_cvx = 10*log10(vecnorm(x)^2 / vecnorm(x-xx)^2)
+snr_cvx = 10*log10(norm(x)^2 / norm(x-xx)^2)
 
 # Blosc (no quantization)
 y = zeros(UInt8, nz*nx*4+512)
@@ -25,7 +25,7 @@ xx=zeros(Float32,nz*nx)
 Blosc.decompress!(xx, y)
 t_blosc_decompress = @elapsed Blosc.decompress!(xx, y)
 xx = reshape(xx,nz,nx)
-snr_blosc = 10*log10(vecnorm(x)^2 / (vecnorm(x-xx)^2))
+snr_blosc = 10*log10(norm(x)^2 / (norm(x-xx)^2))
 
 # Blosc (quantization)
 function blosc_quant(nz,nx,x,y)
@@ -52,11 +52,11 @@ clength_blosc_quant, mn, sc = blosc_quant(nz,nx,x,y)
 t_bloscquant_compress = @elapsed blosc_quant(nz,nx,x,y)
 blosc_dequant(nz,nx,x,y,mn,sc)
 t_bloscquant_decompress = @elapsed blosc_dequant(nz,nx,x,y,mn,sc)
-snr_bloscquant = 10*log10(vecnorm(x)^2 / (vecnorm(x-xx)^2))
+snr_bloscquant = 10*log10(norm(x)^2 / (norm(x-xx)^2))
 
 #readme = open("README.md", "w")
-readme = STDOUT
-for io in (STDOUT, readme)
+readme = stdout
+for io in (stdout, readme)
     write(io, "# times (compress, de-compress):\n")
     write(io, "* cvx:         $(t_cvx_compress),$(t_cvx_decompress) seconds\n")
     write(io, "* blosc:       $(t_blosc_compress),$(t_blosc_decompress) seconds\n")

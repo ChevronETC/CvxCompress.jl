@@ -1,4 +1,4 @@
-using CvxCompress, Base.Test
+using CvxCompress, Test
 
 @testset "CvxCompress, 2D copy" begin
     bz,bx,scale = 32, 16, 1e-3

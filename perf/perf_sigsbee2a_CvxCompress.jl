@@ -66,7 +66,7 @@ end
 io = open("$(F.srcfieldfile)-p")
 ts = 1:F.ntrec
 for it in ts
-    write(STDOUT, "it=$(it).")
+    write(stdout, "it=$(it).")
 
     # read uncrompressed field into x
     seek(io, (it-1)*prod(size(F.ginsu,interior=true))*4)
@@ -88,7 +88,7 @@ for it in ts
     xx = similar(x)
     CvxCompress.decompress!(xx, cvx, y, cl)
     push!(t_cvx_decompress, @elapsed CvxCompress.decompress!(xx, cvx, y, cl))
-    push!(snr_cvx, 10*log10(vecnorm(x)^2 / vecnorm(x-xx)^2))
+    push!(snr_cvx, 10*log10(norm(x)^2 / norm(x-xx)^2))
 
     #
     # Blosc (no quantization)
@@ -104,7 +104,7 @@ for it in ts
     Blosc.decompress!(xx, y)
     push!(t_blosc_decompress, @elapsed Blosc.decompress!(xx, y))
     xx = reshape(xx,nz,nx)
-    push!(snr_blosc, 10*log10(vecnorm(x)^2 / (vecnorm(x-xx)^2)))
+    push!(snr_blosc, 10*log10(norm(x)^2 / (norm(x-xx)^2)))
 
     #
     # Blosc (with quantization)
@@ -119,7 +119,7 @@ for it in ts
     xx=zeros(Float32,nz,nx)
     blosc_dequant(nz,nx,xx,y,mn,sc)
     push!(t_bloscquant_decompress, @elapsed blosc_dequant(nz,nx,xx,y,mn,sc))
-    push!(snr_bloscquant, 10*log10(vecnorm(x)^2 / (vecnorm(x-xx)^2)))
+    push!(snr_bloscquant, 10*log10(norm(x)^2 / (norm(x-xx)^2)))
 end
 close(io)
 
