@@ -1,4 +1,5 @@
 *.swp
+build.log
 deps/downloads
 deps/src
 deps/usr

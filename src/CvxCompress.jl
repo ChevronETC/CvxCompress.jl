@@ -1,12 +1,10 @@
-__precompile__()
-
 module CvxCompress
 
 import Base.copy
 
 const _jl_libcvxcompress = normpath(joinpath(Base.source_path(), "../../deps/usr/lib/libcvxcompress"))
 
-type CvxCompressor{N}
+mutable struct CvxCompressor{N}
     br::Array{Int64,1} # [bz,by,bx] for 3D or [bz,bx] for 2D
     scale::Float32
     compressed_length::Base.RefValue{Clong}
@@ -38,7 +36,7 @@ end
 # backwards compat:
 CvxCompressor(;b1::Integer=32,b2::Integer=32,b3::Integer=32,scale::Real=1e-2) = CvxCompressor3D(b1=b1,b2=b2,b3=b3,scale=scale)
 
-copy{N}(c::CvxCompressor{N}) = CvxCompressor{N}(copy(c.br), c.scale, Ref{Clong}(0))
+copy(c::CvxCompressor{N}) where {N} = CvxCompressor{N}(copy(c.br), c.scale, Ref{Clong}(0))
 
 # 3D
 function compress!(compressed_volume::Array{UInt32,1}, c::CvxCompressor{3}, volume::Array{Float32,3})
@@ -54,12 +52,12 @@ compress!(compressed_volume::Array{UInt32,1}, c::CvxCompressor{3}, volume::Array
 function decompress!(volume::Array{Float32,3}, c::CvxCompressor{3}, compressed_volume::Array{UInt32,1}, compressed_length::Integer)
     nz, ny, nx = size(volume)
     ccall((:cvx_decompress_inplace, CvxCompress._jl_libcvxcompress),
-          Void,
+          Cvoid,
           (Ptr{Cfloat}, Cint, Cint, Cint, Ptr{Cuint},        Clong),
           volume,       nz,   ny,   nx,   compressed_volume, compressed_length)
 end
 function decompress!(volume::Array{Float64,3}, c::CvxCompressor{3}, compressed_volume::Array{UInt32,1}, compressed_length::Integer)
-    v = Array{Float32}(size(volume))
+    v = Array{Float32}(undef, size(volume))
     decompress!(v, c, compressed_volume, compressed_length)
     volume[:] = v[:]
 end
@@ -78,7 +76,7 @@ compress!(compressed_volume::Array{UInt32,1}, c::CvxCompressor{2}, volume::Array
 function decompress!(volume::Array{Float32,2}, c::CvxCompressor{2}, compressed_volume::Array{UInt32,1}, compressed_length::Integer)
     nz, nx = size(volume)
     ccall((:cvx_decompress_inplace, CvxCompress._jl_libcvxcompress),
-          Void,
+          Cvoid,
           (Ptr{Cfloat}, Cint, Cint, Cint, Ptr{Cuint},        Clong),
           volume,       nz,   nx,   1,    compressed_volume, compressed_length)
 end
