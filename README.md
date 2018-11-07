@@ -7,7 +7,7 @@ Thin wrapper around CvxCompress written by Thor Johnsen.
 # Obtaining CvxCompress.jl
 1. Follow the instructions at https://chevron.visualstudio.com/ETC-ESD-PkgRegistry.jl
 2. From the Julia prompt, `]add CvxCompress`
-3. (optional) From the Julia prompt `]dev CvxCompres`
+3. (optional) From the Julia prompt `]dev CvxCompress`
 
 # Building CvxCompress.jl
 CvxCompress.jl depends on CvxCompress, written by Thor Johnsen.  To re-download and re-build CvxCompress, do:
