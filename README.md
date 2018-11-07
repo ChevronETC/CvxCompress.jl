@@ -5,22 +5,14 @@ Thin wrapper around CvxCompress written by Thor Johnsen.
 * CvxCompress (svn+ssh://ss-svn.xhl.chevrontexaco.net/devl/geophys/src/projects/fdmod2/trunk/CvxCompress)
 
 # Obtaining CvxCompress.jl
-You may prefer obtaining CvxCompress.jl and related packages from its parent project:
-
-* http://136.171.178.114/juliafwi/ESDRDGeophysics
-
-Following the above link will help you set up an development environment that is similar to your Chevron ETC/ESD peers.  Otherwise, you can continue reading to the end of this section.
-
-You can obtain CvxCompress.jl using the Julia package management system.  From the Julia prompt:
-```julia
-Pkg.add("http://136.171.178.114/juliafwi/CvxCompress.jl")
-```
+1. Follow the instructions at https://chevron.visualstudio.com/ETC-ESD-PkgRegistry.jl
+2. From the Julia prompt, `]add CvxCompress`
+3. (optional) From the Julia prompt `]dev CvxCompres`
 
 # Building CvxCompress.jl
-CvxCompress.jl depends on CvxCompress, written by Thor Johnsen.  To download and build CvxCompress, do:
+CvxCompress.jl depends on CvxCompress, written by Thor Johnsen.  To re-download and re-build CvxCompress, do:
 ```julia
-cd CvxCompress/deps
-julia build.jl
+]build CvxCompress
 ```
 
 # Using CvxCompress.jl
