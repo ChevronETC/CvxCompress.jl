@@ -1,5 +1,5 @@
 BUILD_HOME = pwd()
-REPO_PATH = haskey(ENV, "CODE_REPO_PATH") ? "$(ENV["CODE_REPO_PATH"])/CvxCompress" : "http://136.171.178.114/EarthSciences/CvxCompress"
+REPO_PATH = haskey(ENV, "CODE_REPO_PATH") ? "$(ENV["CODE_REPO_PATH"])/CvxCompress" : "https://chevron.visualstudio.com/ETC-ESD-CvxCompress/_git/CvxCompress"
 
 #
 # clean-up after old builds
