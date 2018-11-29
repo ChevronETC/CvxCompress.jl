@@ -2,7 +2,7 @@
 Thin wrapper around CvxCompress written by Thor Johnsen.
 
 # Dependencies
-* CvxCompress (svn+ssh://ss-svn.xhl.chevrontexaco.net/devl/geophys/src/projects/fdmod2/trunk/CvxCompress)
+* CvxCompress (https://chevron.visualstudio.com/ETC-ESD-CvxCompress)
 
 # Obtaining CvxCompress.jl
 1. Follow the instructions at https://chevron.visualstudio.com/ETC-ESD-PkgRegistry.jl
