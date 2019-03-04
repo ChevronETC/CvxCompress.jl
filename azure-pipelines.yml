@@ -33,7 +33,7 @@ steps:
 
     sudo wget https://releases.hashicorp.com/packer/${MYPACKER_VERSION}/packer_${MYPACKER_VERSION}_linux_amd64.zip
     sudo mkdir -p /opt/packer
-    sudo unzip packer_1.3.4_linux_amd64.zip -d /opt/packer
+    sudo unzip packer_${MYPACKER_VERSION}_linux_amd64.zip -d /opt/packer
 
     mkdir -p $(HOME)/.julia/dev
 
