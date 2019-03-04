@@ -21,11 +21,12 @@ steps:
     mkdir ~/.ssh
     cp $(Agent.TempDirectory)/id_rsa ~/.ssh/id_rsa
     cp $(Agent.TempDirectory)/id_rsa.pub ~/.ssh/id_rsa.pub
-    cp $(Agend.TempDirectory)/known_hosts ~/.ssh/known_hosts
+    cp $(Agent.TempDirectory)/known_hosts ~/.ssh/known_hosts
     chmod 600 ~/.ssh/id_rsa
     chmod 644 ~/.ssh/id_rsa.pub
     chmod 644 ~/.ssh/known_hosts
 
+    cd /tmp
     sudo wget https://julialang-s3.julialang.org/bin/linux/x64/${MYJULIA_VERSION_MINOR}/julia-${MYJULIA_VERSION}-linux-x86_64.tar.gz
     sudo mkdir -p /opt/julia
     sudo tar --strip-components=1 -xzvf julia-${MYJULIA_VERSION}-linux-x86_64.tar.gz -C /opt/julia
@@ -38,16 +39,11 @@ steps:
 
     cp -r ${BUILD_SOURCESDIRECTORY} $(HOME)/.julia/dev/CvxCompress
 
-    mkdir -p $(HOME)/.julia/registries/ChevronETC
-    git clone -b tqff/ssh chevron@vs-ssh.visualstudio.com:v3/chevron/ETC-ESD-PkgRegistry.jl/PkgRegistry.jl $(HOME)/.julia/registries/ChevronETC
-
     git clone -b tqff/d20861c chevron@vs-ssh.visualstudio.com:v3/chevron/ETC-ESD-CvxCompress/CvxCompress /tmp/CvxCompress
     export CODE_REPO_PATH="/tmp"
 
-    /opt/julia/bin/julia -e 'using Pkg; pkg"add Random Serialization"'
-    /opt/julia/bin/julia -e 'using Pkg; pkg"develop AbstractStorage"'
-    /opt/julia/bin/julia -e 'using Pkg; pkg"develop --local $(HOME)/.julia/dev/FolderStorage"'
-    /opt/julia/bin/julia -e 'using Pkg; pkg"build FolderStorage"'
+    /opt/julia/bin/julia -e 'using Pkg; pkg"develop --local $(HOME)/.julia/dev/CvxCompress"'
+    /opt/julia/bin/julia -e 'using Pkg; pkg"build CvxCompress"'
     /opt/julia/bin/julia -e 'using Pkg; pkg"precompile"'
   env:
     MYJULIA_VERSION: $(JULIA_VERSION)
@@ -56,7 +52,7 @@ steps:
   displayName: 'Install system'
 
 - script: |
-    /opt/julia/bin/julia -e 'using Pkg; pkg"test FolderStorage"'
+    /opt/julia/bin/julia -e 'using Pkg; pkg"test CvxCompress"'
   displayName: 'Run unit-tests'
 
 - task: DownloadSecureFile@1
