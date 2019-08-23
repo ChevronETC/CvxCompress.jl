@@ -5,38 +5,15 @@ import Base.copy
 const _jl_libcvxcompress = normpath(joinpath(Base.source_path(), "../../deps/usr/lib/libcvxcompress"))
 
 mutable struct CvxCompressor{N}
-    br::Array{Int64,1} # [bz,by,bx] for 3D or [bz,bx] for 2D
+    br::NTuple{N,Int}
     scale::Float32
     compressed_length::Base.RefValue{Clong}
 end
 
-function CvxCompressor3D(;b1::Integer=32,b2::Integer=32,b3::Integer=32,scale::Real=1e-2)
-    if b1 < 8 || b2 > 256 || nextpow(2,b3) != b3
-        throw(ArgumentError("must have 8 <= b3 <= 256, and b3 must be a power of 2 got b3=$(b3)"))
-    end
-    if b2 < 8 || b2 > 256 || nextpow(2,b2) != b2
-        throw(ArgumentError("must have 8 <= b2 <= 256, and by must be a power of 2 got b2=$(b2)"))
-    end
-    if b3 < 8 || b3 > 256 || nextpow(2,b3) != b3
-        throw(ArgumentError("must have 8 <= b3 <= 256, and b3 must be a power of 2 got b3=$(b3)"))
-    end
-    CvxCompressor{3}([Int64(b1) ; Int64(b2) ; Int64(b3)], Float32(scale), Ref{Clong}(0))
-end
+CvxCompressor(b::NTuple{N,Int}, scale=1e-2) where {N} = CvxCompressor{N}(b, scale, Ref{Clong}(0))
+CvxCompressor(b::Vararg{Int,N}) where {N} = CvxCompressor(b)
 
-function CvxCompressor2D(;b1::Integer=32,b2::Integer=32,scale::Real=1e-2)
-    if b1 < 8 || b1 > 256 || nextpow(2,b1) != b1
-        throw(ArgumentError("must have 8 <= b1 <= 256, and b1 must be a power of 2 got b1=$(b1)"))
-    end
-    if b2 < 8 || b2 > 256 || nextpow(2,b2) != b2
-        throw(ArgumentError("must have 8 <= b2 <= 256, and b2 must be a power of 2 got b2=$(b2)"))
-    end
-    CvxCompressor{2}([Int64(b1) ; Int64(b2)], Float32(scale), Ref{Clong}(0))
-end
-
-# backwards compat:
-CvxCompressor(;b1::Integer=32,b2::Integer=32,b3::Integer=32,scale::Real=1e-2) = CvxCompressor3D(b1=b1,b2=b2,b3=b3,scale=scale)
-
-copy(c::CvxCompressor{N}) where {N} = CvxCompressor{N}(copy(c.br), c.scale, Ref{Clong}(0))
+copy(c::CvxCompressor{N}) where {N} = CvxCompressor{N}(c.br, c.scale, Ref{Clong}(0))
 
 # 3D
 function compress!(compressed_volume::Array{UInt32,1}, c::CvxCompressor{3}, volume::Array{Float32,3})

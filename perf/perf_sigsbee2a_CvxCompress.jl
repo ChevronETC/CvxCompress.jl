@@ -76,7 +76,7 @@ for it in ts
     #
     # CvxCompress
     #
-    cvx = CvxCompressor2D(b1=32,b2=32)
+    cvx = CvxCompressor2D(32,32)
 
     # compression - compressed buffer is y
     y = zeros(UInt32, nz*nx)
