@@ -1,6 +1,6 @@
 name = "CvxCompress"
 uuid = "3e489a4b-a92a-5e1b-a7bf-ed666eae205e"
-version = "0.1.0"
+version = "0.2.0"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
