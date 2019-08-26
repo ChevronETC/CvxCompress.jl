@@ -1,6 +1,6 @@
-using CvxCompress, Blosc
+using CvxCompress, Blosc, LinearAlgebra
 
-Blosc.set_num_threads(19)
+Blosc.set_num_threads(4)
 
 nz, nx = 2048, 4096
 bz, bx = 32, 32
@@ -10,11 +10,11 @@ x = rand(Float32, nz, nx)
 
 # CvxCompress
 y = zeros(UInt32, nz*nx)
-clength_cvx = CvxCompress.compress!(y, CvxCompressor2D(b1=bz,b2=bx,scale=scl), x)
-t_cvx_compress = @elapsed clength_cvx = CvxCompress.compress!(y, CvxCompressor2D(b1=bz,b2=bx,scale=scl), x)
+clength_cvx = CvxCompress.compress!(y, CvxCompressor((bz,bx),scl), x)
+t_cvx_compress = @elapsed clength_cvx = CvxCompress.compress!(y, CvxCompressor((bz,bx),scl), x)
 xx = similar(x)
-CvxCompress.decompress!(xx, CvxCompressor2D(b1=bz,b2=bx,scale=scl), y, clength_cvx)
-t_cvx_decompress = @elapsed CvxCompress.decompress!(xx, CvxCompressor2D(b1=bz,b2=bx,scale=scl), y, clength_cvx)
+CvxCompress.decompress!(xx, CvxCompressor((bz,bx),scl), y, clength_cvx)
+t_cvx_decompress = @elapsed CvxCompress.decompress!(xx, CvxCompressor((bz,bx),scl), y, clength_cvx)
 snr_cvx = 10*log10(norm(x)^2 / norm(x-xx)^2)
 
 # Blosc (no quantization)
