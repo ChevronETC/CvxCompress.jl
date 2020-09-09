@@ -3,3 +3,5 @@ build.log
 deps/downloads
 deps/src
 deps/usr
+build
+.vscode
