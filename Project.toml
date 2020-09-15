@@ -1,6 +1,9 @@
 name = "CvxCompress"
 uuid = "3e489a4b-a92a-5e1b-a7bf-ed666eae205e"
-version = "0.3.0"
+version = "1.0.0"
+
+[deps]
+CvxCompress_jll = "2493bdd5-554a-52e1-bea5-dc84d30aecb9"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
@@ -10,3 +13,4 @@ test = ["Test"]
 
 [compat]
 julia = "1"
+CvxCompress_jll = "1"
