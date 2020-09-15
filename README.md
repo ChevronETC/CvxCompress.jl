@@ -6,6 +6,7 @@
 
 Thin wrapper around CvxCompress written by Thor Johnsen.
 
+
 [docs-dev-img]: https://img.shields.io/badge/docs-dev-blue.svg
 [docs-dev-url]: https://chevronetc.github.io/CvxCompress.jl/dev/
 
