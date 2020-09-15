@@ -15,5 +15,5 @@ Thin wrapper around CvxCompress written by Thor Johnsen.
 [doc-build-status-img]: https://github.com/ChevronETC/CvxCompress.jl/workflows/Documentation/badge.svg
 [doc-build-status-url]: https://github.com/ChevronETC/CvxCompress.jl/actions?query=workflow%3ADocumentation
 
-[build-status-img]: https://github.com/ChevronETC/AzStorage.jl/workflows/RunTest/badge.svg
-[build-status-url]: https://github.com/ChevronETC/AzStorage.jl/actions?query=workflow%3ARunTest
+[build-status-img]: https://github.com/ChevronETC/CvxCompress.jl/workflows/RunTest/badge.svg
+[build-status-url]: https://github.com/ChevronETC/CvxCompress.jl/actions?query=workflow%3ARunTest
