@@ -1,8 +1,8 @@
 module CvxCompress
 
-import Base.copy
+using CvxCompress_jll
 
-const _jl_libcvxcompress = normpath(joinpath(Base.source_path(), "../../deps/usr/lib/libcvxcompress"))
+import Base.copy
 
 """
     CvxCompressor{N}
@@ -43,7 +43,7 @@ copy(c::CvxCompressor{N}) where {N} = CvxCompressor{N}(c.br, c.scale, Ref{Clong}
 """
 function compress!(compressed_volume::Array{UInt32,1}, c::CvxCompressor{3}, volume::Array{Float32,3})
     nz, ny, nx = size(volume)
-    ccall((:cvx_compress, CvxCompress._jl_libcvxcompress),
+    ccall((:cvx_compress, libcvxcompress),
           Float32,
           (Cfloat, Ptr{Cfloat}, Cint, Cint, Cint, Cint,    Cint,    Cint,    Ptr{Cuint},        Ref{Clong}),
           c.scale, volume,      nz,   ny,   nx,   c.br[1], c.br[2], c.br[3], compressed_volume, c.compressed_length)
@@ -64,7 +64,7 @@ compress!(compressed_volume::Array{UInt32,1}, c::CvxCompressor{3}, volume::Array
 """
 function decompress!(volume::Array{Float32,3}, c::CvxCompressor{3}, compressed_volume::Array{UInt32,1}, compressed_length::Integer)
     nz, ny, nx = size(volume)
-    ccall((:cvx_decompress_inplace, CvxCompress._jl_libcvxcompress),
+    ccall((:cvx_decompress_inplace, libcvxcompress),
           Cvoid,
           (Ptr{Cfloat}, Cint, Cint, Cint, Ptr{Cuint},        Clong),
           volume,       nz,   ny,   nx,   compressed_volume, compressed_length)
@@ -88,7 +88,7 @@ end
 """
 function compress!(compressed_volume::Array{UInt32,1}, c::CvxCompressor{2}, volume::Array{Float32,2})
     nz, nx = size(volume)
-    ccall((:cvx_compress, CvxCompress._jl_libcvxcompress),
+    ccall((:cvx_compress, libcvxcompress),
           Float32,
           (Cfloat, Ptr{Cfloat}, Cint, Cint, Cint, Cint,    Cint,    Cint,    Ptr{Cuint},        Ref{Clong}),
           c.scale, volume,      nz,   nx,   1,    c.br[1], c.br[2], 1,       compressed_volume, c.compressed_length)
@@ -109,7 +109,7 @@ compress!(compressed_volume::Array{UInt32,1}, c::CvxCompressor{2}, volume::Array
 """
 function decompress!(volume::Array{Float32,2}, c::CvxCompressor{2}, compressed_volume::Array{UInt32,1}, compressed_length::Integer)
     nz, nx = size(volume)
-    ccall((:cvx_decompress_inplace, CvxCompress._jl_libcvxcompress),
+    ccall((:cvx_decompress_inplace, libcvxcompress),
           Cvoid,
           (Ptr{Cfloat}, Cint, Cint, Cint, Ptr{Cuint},        Clong),
           volume,       nz,   nx,   1,    compressed_volume, compressed_length)
