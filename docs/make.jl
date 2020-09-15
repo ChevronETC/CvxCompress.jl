@@ -3,16 +3,16 @@ push!(LOAD_PATH,"../src/")
 using Documenter, CvxCompress
 
 makedocs(
-    sitename="CvxCompress",
+    sitename="CvxCompress.jl",
     modules=[CvxCompress],
     pages = [
-        "index.md",
-        "manual.md",
+        "Home" => "index.md",
+        "User Guide" => "manual.md",
         "reference.md",
-        "perf/perf.md"
+        "Performance" => "perf/perf.md"
         ]
 )
 
 deploydocs(
-    repo = "github.com/ChevronETC/CvxCompress.jl.git"
+    repo = "github.com/ChevronETC/CvxCompress.jl"
 )
