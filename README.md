@@ -2,7 +2,7 @@
 
 | **Documentation** | **Action Statuses** |
 |:---:|:---:|
-| [![][docs-dev-img]][docs-dev-url] [![][docs-stable-img]][docs-stable-url] | [![][doc-build-status-img]][doc-build-status-url] [![][doc-build-status-img]][doc-build-status-url] |
+| [![][docs-dev-img]][docs-dev-url] [![][docs-stable-img]][docs-stable-url] | [![][doc-build-status-img]][doc-build-status-url] [![][build-status-img]][build-status-url] |
 
 Thin wrapper around CvxCompress written by Thor Johnsen.
 
