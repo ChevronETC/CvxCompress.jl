@@ -2,7 +2,7 @@
 
 | **Documentation** | **Action Statuses** |
 |:---:|:---:|
-| [![][docs-dev-img]][docs-dev-url] [![][docs-stable-img]][docs-stable-url] | [![][doc-status-img]][doc-status-url] |
+| [![][docs-dev-img]][docs-dev-url] [![][docs-stable-img]][docs-stable-url] | [![][doc-build-status-img]][doc-build-status-url] [![][doc-build-status-img]][doc-build-status-url] |
 
 Thin wrapper around CvxCompress written by Thor Johnsen.
 
@@ -12,5 +12,8 @@ Thin wrapper around CvxCompress written by Thor Johnsen.
 [docs-stable-img]: https://img.shields.io/badge/docs-stable-blue.svg
 [docs-stable-url]: https://ChevronETC.github.io/CvxCompress.jl/stable
 
-[doc-status-img]: https://github.com/ChevronETC/CvxCompress.jl/workflows/Documentation/badge.svg
-[doc-status-url]: https://github.com/ChevronETC/CvxCompress.jl/actions?query=workflow%3ADocumentation
+[doc-build-status-img]: https://github.com/ChevronETC/CvxCompress.jl/workflows/Documentation/badge.svg
+[doc-build-status-url]: https://github.com/ChevronETC/CvxCompress.jl/actions?query=workflow%3ADocumentation
+
+[build-status-img]: https://github.com/ChevronETC/AzStorage.jl/workflows/RunTest/badge.svg
+[build-status-url]: https://github.com/ChevronETC/AzStorage.jl/actions?query=workflow%3ARunTest
