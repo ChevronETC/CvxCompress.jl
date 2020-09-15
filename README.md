@@ -2,7 +2,7 @@
 
 | **Documentation** | **Action Statuses** |
 |:---:|:---:|
-| [![][docs-dev-img]][docs-dev-url] [![][docs-stable-img]][docs-stable-url] | [![][doc-build-status-img]][doc-build-status-url] [![][build-status-img]][build-status-url] |
+| [![][docs-dev-img]][docs-dev-url] [![][docs-stable-img]][docs-stable-url] | [![][doc-build-status-img]][doc-build-status-url] [![][build-status-img]][build-status-url] [![][code-coverage-img]][code-coverage-results] |
 
 Thin wrapper around CvxCompress written by Thor Johnsen.
 
@@ -17,3 +17,6 @@ Thin wrapper around CvxCompress written by Thor Johnsen.
 
 [build-status-img]: https://github.com/ChevronETC/CvxCompress.jl/workflows/Tests/badge.svg
 [build-status-url]: https://github.com/ChevronETC/CvxCompress.jl/actions?query=workflow%3A"Tests"
+
+[code-coverage-img]: https://codecov.io/gh/ChevronETC/CvxCompress.jl/branch/master/graph/badge.svg
+[code-coverage-results]: https://codecov.io/gh/ChevronETC/CvxCompress.jl
