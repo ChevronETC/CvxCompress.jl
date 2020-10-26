@@ -1,0 +1,7 @@
+[wavefields]
+git-tree-sha1 = "98f88e9d30895a0e483b3aa30f599c55f98b9b45"
+lazy = true
+
+    [[wavefields.download]]
+    sha256 = "eeab920629f1c445d89541f01787625a111d1be5cd9ec00c70a49ba2b7fc99f4"
+    url = "https://github.com/ChevronETC/CvxCompress.jl/releases/download/v1.0.0/wavefields.tar.gz"
