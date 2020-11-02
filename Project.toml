@@ -5,12 +5,13 @@ version = "1.0.0"
 [deps]
 CvxCompress_jll = "2493bdd5-554a-52e1-bea5-dc84d30aecb9"
 
+[compat]
+CvxCompress_jll = "1"
+julia = "1"
+
 [extras]
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Test"]
-
-[compat]
-julia = "1"
-CvxCompress_jll = "1"
+test = ["Random", "Test"]

@@ -1,4 +1,7 @@
-using CvxCompress, Test
+using CvxCompress, Test, Random
+
+# set random seed to promote repeatability in CI unit tests
+Random.seed!(101)
 
 @testset "CvxCompress, 2D" begin
     nz,nx,bz,bx,σ = 2048,4096,32,32,1e-3
