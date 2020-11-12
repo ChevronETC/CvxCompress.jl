@@ -5,12 +5,17 @@ version = "1.0.0"
 [deps]
 CvxCompress_jll = "2493bdd5-554a-52e1-bea5-dc84d30aecb9"
 
+[compat]
+BenchmarkTools = "0.5"
+CvxCompress_jll = "1"
+julia = "1"
+
 [extras]
+BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
+benchmark = ["BenchmarkTools", "LinearAlgebra", "Pkg"]
 test = ["Test"]
-
-[compat]
-julia = "1"
-CvxCompress_jll = "1"
